@@ -6,6 +6,7 @@ class Autoload
         $loadableDirectories = [
             'app/kernel',
             'app/helpers',
+            'app/models',
         ];
        
         foreach($loadableDirectories as $directory) {   
