@@ -3,30 +3,30 @@
 namespace App\Controllers;
 
 use App\Kernel\Controller;
-use App\Helpers\FileService;
+use App\Helpers;
 use App\Models\AccessLogFile;
 
 class MainController extends Controller
-{	
-	public function __construct()
+{    
+    public function __construct()
     {
         parent::__construct();
-        $fileService = new FileService();
+        $fileService = new Helpers\FileService();
+        $this->statisticsCollector = new Helpers\StatisticsCollector();
         $this->accessLogFile = new AccessLogFile($fileService);
     }
 
     public  function index(){ 
-    	$this->accessLogFile->openFile('./access.log');
+        $this->accessLogFile->openFile('./access.log');
+        $currentLogLine = $this->accessLogFile->readLine();
+        
+        while ( $currentLogLine !== null ) {
+            $this->statisticsCollector->add($currentLogLine);
+            $currentLogLine = $this->accessLogFile->readLine();
+        }
 
-    	$tmp = '';
-    	$currentLogLine = $this->accessLogFile->readLine();
-    	while ( $currentLogLine !== null ) {
-    		$tmp .= $currentLogLine;
-    		$currentLogLine = $this->accessLogFile->readLine();
-    	}
-
-    	
-
-      $this->response->json([$tmp]);
+        
+        $statistics = $this->statisticsCollector->statistics();
+        $this->response->json($statistics);
     }
 }
