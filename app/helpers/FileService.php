@@ -3,51 +3,61 @@
 namespace App\Helpers;
 
 class FileService
-{    
+{   
+    /**
+     * Указатель на открытый файл
+     * @var resource
+     */
+    private $fileDescriptor = null;
+
     /**
      * Открывает файл
      * @param  string $filename Полное имя файла
      * @param  string $mode     Тип доступа
-     * @return resource           Указатель на файл в случае успешной работы, или FALSE
+     * @return bool             Успешность открытия файла
      */
-    public  function openFile(string $filename, string $mode): resource{   
-        $fileDescriptor =  fopen($filename,$mode);
-        if($fileDescriptor === false){
-            return null;
+    public function openFile(string $filename, string $mode): bool{   
+        
+        $this->fileDescriptor = fopen($filename,$mode);
+        
+        if($this->fileDescriptor === false){
+            return false;
         }
 
-        return $fileDescriptor;
+        return true;
     }
+
 
     /**
      * Чтение строки из файла
-     * @param  resource $fileDescriptor Указатель на файл
-     * @return string                   Прочитанная строка в случае успеха
+     * @return string       Прочитанная строка в случае успеха
      */
-    public  function readLine(resource $fileDescriptor): ?string{   
+    public function readLine(): ?string{   
         
-        if (feof($fileDescriptor)){
+        if (feof($this->fileDescriptor)){
             return null;
         }
-
 
         $char = '';
         $line = '';
 
-        while (!feof($fileDescriptor) && $char != "\n") {
-            $char = fread($fileDescriptor, 1);
+        while (!feof($this->fileDescriptor) && $char != "\n") {
+            $char = fread($this->fileDescriptor, 1);
             $line .= $char;
         }
+
         return rtrim($line, "\n");
     }
 
+
     /**
      * Закрытие файла
-     * @param  resource $fileDescriptor Указатель на файл
-     * @return bool                     Результат выполнения
+     * @return bool     Результат выполнения
      */
-    public  function closeFile(resource $fileDescriptor): bool{   
-        $result = fclose ( $fileDescriptor );
+    public function closeFile(): bool{
+
+        $result = is_resource($this->fileDescriptor) ? fclose($this->fileDescriptor) : true;
+
         return (bool)$result;
     }
 }
