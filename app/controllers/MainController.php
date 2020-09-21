@@ -18,11 +18,11 @@ class MainController extends Controller
 
     public  function index(){ 
         $this->accessLogFile->openFile('./access.log');
-        $currentLogLine = $this->accessLogFile->readLine();
         
-        while ( $currentLogLine !== null ) {
-            $this->statisticsCollector->add($currentLogLine);
-            $currentLogLine = $this->accessLogFile->readLine();
+        
+        while ( $this->accessLogFile->canBeRead() ) {
+        	$currentLogEntry = $this->accessLogFile->readNextLine()->logInArray();
+            $this->statisticsCollector->add($currentLogEntry);
         }
 
         
