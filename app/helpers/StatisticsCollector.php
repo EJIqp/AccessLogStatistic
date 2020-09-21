@@ -32,17 +32,26 @@ class StatisticsCollector
      * @param array $logLine Строка лога
      */
     public function add(array $LogEntry): bool{   
-        
-        $this->result['views']++;
-        $this->setUrls($LogEntry['path']);
+        $this->addView();
+        $this->addUrl($LogEntry['path']);
+        $this->addTraffic((int)$LogEntry['bytes']);
+        $this->addCrawler($LogEntry['agent']);
+        $this->addStatusCode($LogEntry['status']);
         return true;
+    }
+
+    /**
+     * добавляем новые просмотры
+     */
+    public function addView(): void{   
+        $this->result['views']++;
     }
 
     /**
      * Сбор количества уникальных urls
      * @param string $url  Строка url
      */
-    public function setUrls(string $url): void{   
+    public function addUrl(string $url): void{   
         
         $startPosOfUrlQueryParams = StringService::strrpos($url,'?');
         $baseURL = StringService::substr($url,0,$startPosOfUrlQueryParams);
@@ -53,6 +62,40 @@ class StatisticsCollector
         }
     }
 
+    /**
+     * Накопление траффика
+     * @param int $traffic  Количество переданных бит трафика
+     */
+    public function addTraffic(int $traffic): void{   
+        $this->result['traffic'] += $traffic;
+    }
+
+    /**
+     * Добавляем поисковые боты к статистике
+     * @param string $agent  User agent
+     */
+    public function addCrawler(string $agent): void{   
+        
+        $botName = BotService::botName($agent);
+
+        if( $botName !== null && isset($this->result['crawlers'][$botName])) {
+            $this->result['crawlers'][$botName]++;
+        }
+    }
+
+    /**
+     * Добавляем коды статусов запросов
+     * @param string $statusCode  Код статуса
+     */
+    public function addStatusCode(string $statusCode): void{   
+        if( $statusCode !== ''){
+            if( isset($this->result['statusCodes'][$statusCode]) ){
+                $this->result['statusCodes'][$statusCode]++;
+            }else{
+                $this->result['statusCodes'][$statusCode] = 1;
+            }
+        }
+    }
 
     /**
      * Метод возвращает собранную статистику
