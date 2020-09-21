@@ -5,16 +5,17 @@ namespace App\Models;
 use App\Kernel\Model;
 
 class AccessLogFile extends Model
-{	
+{
 
-	private $fileService = null;
+    private $logFile = null;
+    private $currentLogLine = '';
     
     /**
      * Инициализации модели.
      * @param App\Helpers\File $fileService Объект для работы с файлами
      */
     public function __construct(\App\Helpers\FileService $fileService){
-    	$this->fileService = $fileService;
+        $this->logFile = $fileService;
     }
 
     /**
@@ -23,24 +24,71 @@ class AccessLogFile extends Model
      * @return bool             Результат откртыия true - успешно, false - ошибка
      */
     public function openFile(string $fileName): bool{
-    	$openingStatus = $this->fileService->openFile($fileName, "r");
-    	return (bool)$openingStatus;
-	}
+        $openingStatus = $this->logFile->openFile($fileName, "r");
+        return (bool)$openingStatus;
+    }
 
-	
-	/**
-     * Чтение строки файла. Указатель передвигатеся на следующую строку.
-     * @return string 	Тукущая строка файла
+    /**
+     * Доступно ли чтение файла с логами
+     * @return boolean  Результат проверки true - доступен, false - достигнут конец
      */
-    public function readLine(): ?string{
-    	$logLine = $this->fileService->readLine();
-    	return $logLine;
-	}
+    public function canBeRead(): bool{
+        return $this->logFile->isReachedEOF() ? false : true;
+    }
 
-	/**
-	 * Закрывает соединение с файлом
-	 */
-	public function __destruct(){
-    	$this->fileService = $this->fileService->closeFile();
+    /**
+     * Чтение строки файла. Указатель передвигатеся на следующую строку.
+     * @return AccessLogFile     Тукущее состояние объекта AccessLogFile
+     */
+    public function readNextLine(): AccessLogFile{
+        $this->currentLogLine = $this->logFile->readLine();
+        return $this;
+    }
+
+    /**
+     * Getter текущей записи лога в текстовом формате
+     * @return string     Тукущая запись файла логов
+     */
+    public function logInText(): ?string{
+        return $this->currentLogLine !== '' ? $this->currentLogLine : null;
+    }
+
+    /**
+     * Getter текущей записи лога в виде ассоциативного массива
+     * @return array     Тукущая запись файла логов
+     */
+    public function logInArray(): array{
+        $result = [];
+
+        if($this->currentLogLine !== ''){
+
+            $pattern = '/(\S+) (\S+) (\S+) \[(.+?)\] \"(\S+) (.*?) (\S+)\" (\S+) (\S+) \"(.*?)\" \"(.*?)\"/';
+            
+            preg_match ($pattern, $this->currentLogLine, $matches);
+
+	        $result['ip']       = $matches[1];
+	        $result['identity'] = $matches[2];
+	        $result['user']     = $matches[3];
+	        $result['date']     = $matches[4];
+	        $result['method']   = $matches[5];
+	        $result['path']     = $matches[6];
+	        $result['protocol'] = $matches[7];
+	        $result['status']   = $matches[8];
+	        $result['bytes']    = $matches[9];
+	        $result['referer']  = $matches[10];
+	        $result['agent']    = $matches[11];
+        }
+
+
+        return $result;
+    }
+
+
+
+    /**
+     * Закрывает соединение с файлом
+     */
+    public function __destruct(){
+        $this->logFile = $this->logFile->closeFile();
     }
 }
