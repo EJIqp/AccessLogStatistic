@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Kernel\Model;
+use App\Helpers\RegExpService;
 
 class AccessLogFile extends Model
 {
@@ -64,7 +65,7 @@ class AccessLogFile extends Model
 
             $pattern = '/(\S+) (\S+) (\S+) \[(.+?)\] \"(\S+) (.*?) (\S+)\" (\S+) (\S+) \"(.*?)\" \"(.*?)\"/';
             
-            preg_match ($pattern, $this->currentLogLine, $matches);
+            $matches = RegExpService::splitByPattern($pattern, $this->currentLogLine);
 
 	        $result['ip']       = $matches[1];
 	        $result['identity'] = $matches[2];
