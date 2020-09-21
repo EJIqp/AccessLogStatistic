@@ -60,4 +60,15 @@ class FileService
 
         return (bool)$result;
     }
+
+    /**
+     * Проверят достигнут ли конец файла
+     * @return bool     Результат выполнения true - если конец или нет файла вовсе
+     */
+    public function isReachedEOF(): bool{
+
+        $result = is_resource($this->fileDescriptor) ? feof($this->fileDescriptor) : true;
+
+        return (bool)$result;
+    }
 }
