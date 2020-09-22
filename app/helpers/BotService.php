@@ -4,6 +4,10 @@ namespace App\Helpers;
 
 class BotService
 {   
+    /**
+     * Список ключей ботов
+     * @var array
+     */
     private static $bots = [
         'Google' => [ 
             'Googlebot', 'Googlebot-Image', 'Mediapartners-Google', 'AdsBot-Google', 'APIs-Google',
