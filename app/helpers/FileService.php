@@ -11,6 +11,15 @@ class FileService
     private $fileDescriptor = null;
 
     /**
+     * Проверяет существование указанного файла или каталога
+     * @param  string $filename Полное имя файла
+     * @return bool             Возвращает true, если файл или каталог существует, иначе false
+     */
+    public function fileExists(string $filename): bool{   
+        return (bool)file_exists($filename);
+    }
+
+    /**
      * Открывает файл
      * @param  string $filename Полное имя файла
      * @param  string $mode     Тип доступа

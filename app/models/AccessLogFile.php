@@ -24,6 +24,16 @@ class AccessLogFile extends Model
      * @param  string $fileName Полное имя файла
      * @return bool             Результат откртыия true - успешно, false - ошибка
      */
+    public function fileExists(string $fileName): bool{
+        $fileExists = $this->logFile->fileExists($fileName);
+        return (bool)$fileExists;
+    }
+
+    /**
+     * Открытваем файл $fileName
+     * @param  string $fileName Полное имя файла
+     * @return bool             Результат откртыия true - успешно, false - ошибка
+     */
     public function openFile(string $fileName): bool{
         $openingStatus = $this->logFile->openFile($fileName, "r");
         return (bool)$openingStatus;
