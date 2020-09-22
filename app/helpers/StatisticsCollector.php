@@ -5,10 +5,10 @@ namespace App\Helpers;
 class StatisticsCollector
 {   
     /**
-     * Статистика по файлу логов
+     * Статистика
      * @var array
      */
-    private $result = [
+    private $statistic = [
         'views' => 0,
         'urls' => 0,
         'traffic' => 0,
@@ -27,81 +27,78 @@ class StatisticsCollector
      */
     private $uniqueUrls = [];
 
-    /**
-     * Добавление строки лога к статистике
-     * @param array $logLine Строка лога
-     */
-    public function add(array $LogEntry): bool{   
-        $this->addView();
-        $this->addUrl($LogEntry['path']);
-        $this->addTraffic((int)$LogEntry['bytes']);
-        $this->addCrawler($LogEntry['agent']);
-        $this->addStatusCode($LogEntry['status']);
-        return true;
-    }
 
     /**
      * добавляем новые просмотры
      */
-    public function addView(): void{   
-        $this->result['views']++;
+    public function addView(): StatisticsCollector{
+        $this->statistic['views']++;
+        return $this;
     }
 
     /**
      * Сбор количества уникальных urls
      * @param string $url  Строка url
      */
-    public function addUrl(string $url): void{   
+    public function addUrl(string $url): StatisticsCollector{
         
         $startPosOfUrlQueryParams = StringService::strrpos($url,'?');
         $baseURL = StringService::substr($url,0,$startPosOfUrlQueryParams);
 
         if( !ArrayService::inArray($baseURL,$this->uniqueUrls) ){
             $this->uniqueUrls[] = $baseURL;
-            $this->result['urls'] = count($this->uniqueUrls);
+            $this->statistic['urls'] = count($this->uniqueUrls);
         }
+
+        return $this;
     }
 
     /**
      * Накопление траффика
      * @param int $traffic  Количество переданных бит трафика
      */
-    public function addTraffic(int $traffic): void{   
-        $this->result['traffic'] += $traffic;
+    public function addTraffic(int $traffic): StatisticsCollector{
+        $this->statistic['traffic'] += $traffic;
+
+        return $this;
     }
 
     /**
      * Добавляем поисковые боты к статистике
      * @param string $agent  User agent
      */
-    public function addCrawler(string $agent): void{   
+    public function addCrawler(string $agent): StatisticsCollector{
         
         $botName = BotService::botName($agent);
 
-        if( $botName !== null && isset($this->result['crawlers'][$botName])) {
-            $this->result['crawlers'][$botName]++;
+        if( $botName !== null && isset($this->statistic['crawlers'][$botName])) {
+            $this->statistic['crawlers'][$botName]++;
         }
+
+        return $this;
     }
 
     /**
      * Добавляем коды статусов запросов
      * @param string $statusCode  Код статуса
      */
-    public function addStatusCode(string $statusCode): void{   
+    public function addStatusCode(string $statusCode): StatisticsCollector{
         if( $statusCode !== ''){
-            if( isset($this->result['statusCodes'][$statusCode]) ){
-                $this->result['statusCodes'][$statusCode]++;
+            if( isset($this->statistic['statusCodes'][$statusCode]) ){
+                $this->statistic['statusCodes'][$statusCode]++;
             }else{
-                $this->result['statusCodes'][$statusCode] = 1;
+                $this->statistic['statusCodes'][$statusCode] = 1;
             }
         }
+
+        return $this;
     }
 
     /**
-     * Метод возвращает собранную статистику
+     * Getter статистики
      * @return array накопленная статистика
      */
     public function statistics(): array{
-        return $this->result;
+        return $this->statistic;
     }
 }

@@ -12,8 +12,8 @@ class MainController extends Controller
     {
         parent::__construct();
         $fileService = new Helpers\FileService();
-        $this->statisticsCollector = new Helpers\StatisticsCollector();
         $this->accessLogFile = new AccessLogFile($fileService);
+        $this->statisticsCollector = new Helpers\StatisticsCollector();
     }
 
     public  function index(){ 
@@ -22,11 +22,18 @@ class MainController extends Controller
         
         while ( $this->accessLogFile->canBeRead() ) {
         	$currentLogEntry = $this->accessLogFile->readNextLine()->logInArray();
-            $this->statisticsCollector->add($currentLogEntry);
+            
+            $this->statisticsCollector
+                ->addView()
+                ->addUrl($currentLogEntry['path'])
+                ->addTraffic($currentLogEntry['bytes'])
+                ->addCrawler($currentLogEntry['agent'])
+                ->addStatusCode($currentLogEntry['status']);
         }
 
         
         $statistics = $this->statisticsCollector->statistics();
-        $this->response->json($statistics);
+        
+        return $this->response->json($statistics);
     }
 }
