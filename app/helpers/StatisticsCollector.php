@@ -42,11 +42,8 @@ class StatisticsCollector
      */
     public function addUrl(string $url): StatisticsCollector{
         
-        $startPosOfUrlQueryParams = StringService::strrpos($url,'?');
-        $baseURL = StringService::substr($url,0,$startPosOfUrlQueryParams);
-
-        if( !ArrayService::inArray($baseURL,$this->uniqueUrls) ){
-            $this->uniqueUrls[] = $baseURL;
+        if( !ArrayService::inArray($url,$this->uniqueUrls) ){
+            $this->uniqueUrls[] = $url;
             $this->statistic['urls'] = count($this->uniqueUrls);
         }
 
