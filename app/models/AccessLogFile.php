@@ -75,19 +75,21 @@ class AccessLogFile extends Model
 
             $pattern = '/(\S+) (\S+) (\S+) \[(.+?)\] \"(\S+) (.*?) (\S+)\" (\S+) (\S+) \"(.*?)\" \"(.*?)\"/';
             
-            $matches = RegExpService::splitByPattern($pattern, $this->currentLogLine);
+            $logLineParameters = RegExpService::splitByPattern($pattern, $this->currentLogLine);
 
-	        $result['ip']       = $matches[1];
-	        $result['identity'] = $matches[2];
-	        $result['user']     = $matches[3];
-	        $result['date']     = $matches[4];
-	        $result['method']   = $matches[5];
-	        $result['path']     = $matches[6];
-	        $result['protocol'] = $matches[7];
-	        $result['status']   = $matches[8];
-	        $result['bytes']    = $matches[9];
-	        $result['referer']  = $matches[10];
-	        $result['agent']    = $matches[11];
+            if( count($logLineParameters) === 12 ){
+                $result['ip']       = $logLineParameters[1];
+                $result['identity'] = $logLineParameters[2];
+                $result['user']     = $logLineParameters[3];
+                $result['date']     = $logLineParameters[4];
+                $result['method']   = $logLineParameters[5];
+                $result['path']     = $logLineParameters[6];
+                $result['protocol'] = $logLineParameters[7];
+                $result['status']   = $logLineParameters[8];
+                $result['bytes']    = $logLineParameters[9];
+                $result['referer']  = $logLineParameters[10];
+                $result['agent']    = $logLineParameters[11];
+            }
         }
 
 

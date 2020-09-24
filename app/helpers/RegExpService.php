@@ -10,10 +10,10 @@ class RegExpService
      * @param  string $subject  Входная строка
      * @return array            Рузультат поиска шаблона в строке
      */
-    public static function splitByPattern(string $pattern , string $subject): array{   
-        
-        preg_match ($pattern, $subject, $matches);
+    public static function splitByPattern(string $pattern , string $subject): array{
 
-        return count($matches) > 0 ? $matches : [];
+        $patternIsMatchesSubject = (bool)preg_match ($pattern, $subject, $matches);
+
+        return $patternIsMatchesSubject ? $matches : [];
     }
 }
