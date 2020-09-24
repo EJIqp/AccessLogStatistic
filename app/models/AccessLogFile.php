@@ -32,11 +32,18 @@ class AccessLogFile extends Model
     /**
      * Открытваем файл $fileName
      * @param  string $fileName Полное имя файла
-     * @return bool             Результат откртыия true - успешно, false - ошибка
+     * @return void
      */
-    public function openFile(string $fileName): bool{
-        $openingStatus = $this->logFile->openFile($fileName, "r");
-        return (bool)$openingStatus;
+    public function openFile(string $fileName): void{
+        $this->logFile->openFile($fileName, "r");
+    }
+
+    /**
+     * Проверка, открыт ли файл
+     * @return bool Если true - открыт, иначе нет.
+     */
+    public function isFileOpen(): bool{
+        return (bool)$this->logFile->isFileOpen();
     }
 
     /**

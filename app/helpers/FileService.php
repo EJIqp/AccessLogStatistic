@@ -9,6 +9,7 @@ class FileService
      * @var resource
      */
     private $fileDescriptor = null;
+    private $fileIsOpen = false;
 
     /**
      * Проверяет существование указанного файла или каталога
@@ -20,20 +21,19 @@ class FileService
     }
 
     /**
-     * Открывает файл
+     * Открывает новый файл
      * @param  string $filename Полное имя файла
      * @param  string $mode     Тип доступа
-     * @return bool             Успешность открытия файла
+     * @return void
      */
-    public function openFile(string $filename, string $mode): bool{   
-        
-        $this->fileDescriptor = fopen($filename,$mode);
-        
-        if($this->fileDescriptor === false){
-            return false;
+    public function openFile(string $filename, string $mode): void{
+
+        if($this->fileIsOpen){
+            $this->closeFile();
         }
 
-        return true;
+        $this->fileDescriptor = fopen($filename,$mode);
+        $this->fileIsOpen = $this->fileDescriptor === false ? false : true;
     }
 
 
@@ -61,13 +61,13 @@ class FileService
 
     /**
      * Закрытие файла
-     * @return bool     Результат выполнения
+     * @return void
      */
-    public function closeFile(): bool{
-
-        $result = is_resource($this->fileDescriptor) ? fclose($this->fileDescriptor) : true;
-
-        return (bool)$result;
+    public function closeFile(): void{
+        if (is_resource($this->fileDescriptor)){
+            fclose($this->fileDescriptor);
+        }
+        $this->fileIsOpen = false;
     }
 
     /**
@@ -79,5 +79,13 @@ class FileService
         $result = is_resource($this->fileDescriptor) ? feof($this->fileDescriptor) : true;
 
         return (bool)$result;
+    }
+
+    /**
+     * Открыт ли файл
+     * @return bool     true - если открыт, иначе false
+     */
+    public function isFileOpen(): bool{
+        return (bool)$this->fileIsOpen;
     }
 }

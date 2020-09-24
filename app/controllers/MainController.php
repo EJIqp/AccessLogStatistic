@@ -42,6 +42,10 @@ class MainController extends Controller
             return $this->response->json(['Error' => 'File not found']);
         }
 
+        if(!$this->accessLogFile->isFileOpen()){
+            return $this->response->json(['Error' => 'File did not open']);
+        }
+
         while ( $this->accessLogFile->canBeRead() ) {
         	$currentLogEntry = $this->accessLogFile->readNextLine()->logInArray();
            
