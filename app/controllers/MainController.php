@@ -52,7 +52,7 @@ class MainController extends Controller
                     ->addCrawler($currentLogEntry['agent'])
                     ->addStatusCode($currentLogEntry['status']);
 
-                if( (int)$currentLogEntry['status'] >= 200 && (int)$currentLogEntry['status'] < 300 ){
+                if( (int)$currentLogEntry['status'] < 300 || (int)$currentLogEntry['status'] >= 400 ){
                     $this->statisticsCollector->addTraffic($currentLogEntry['bytes']);
                 }
             }
