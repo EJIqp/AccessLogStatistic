@@ -7,7 +7,16 @@ use App\Helpers;
 use App\Models\AccessLogFile;
 
 class MainController extends Controller
-{    
+{
+    /**
+     * @var AccessLogFile Объект, содержащий свойства и методы по работе с файлом access.log
+     */
+    private $accessLogFile;
+    /**
+     * @var Helpers\StatisticsCollector Сборщик статистики
+     */
+    private $statisticsCollector;
+
     public function __construct()
     {
         parent::__construct();
