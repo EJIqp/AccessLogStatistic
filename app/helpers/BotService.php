@@ -8,7 +8,7 @@ class BotService
      * Список ключей ботов
      * @var array
      */
-    private static array $bots = [
+    private static array $_bots = [
         'Google' => [
             'Googlebot', 'Googlebot-Image', 'Mediapartners-Google', 'AdsBot-Google', 'APIs-Google',
             'AdsBot-Google-Mobile', 'AdsBot-Google-Mobile', 'Googlebot-News', 'Googlebot-Video',
@@ -50,7 +50,7 @@ class BotService
             return null;
         }
 
-        foreach (self::$bots as $botName => $botKeys) {
+        foreach (self::$_bots as $botName => $botKeys) {
             foreach ($botKeys as $botKey) {
                 if (StringService::strrpos($user_agent, $botKey) !== null) {
                     return $botName;

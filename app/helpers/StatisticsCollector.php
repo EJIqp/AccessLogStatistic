@@ -8,7 +8,7 @@ class StatisticsCollector
      * Статистика
      * @var array
      */
-    private $statistic = [
+    private array $_statistic = [
         'views' => 0,
         'urls' => 0,
         'traffic' => 0,
@@ -25,14 +25,14 @@ class StatisticsCollector
      * Коллекция уникальных url из лога запросов
      * @var array
      */
-    private $uniqueUrls = [];
+    private array $_uniqueUrls = [];
 
 
     /**
      * добавляем новые просмотры
      */
     public function addView(): StatisticsCollector{
-        $this->statistic['views']++;
+        $this->_statistic['views']++;
         return $this;
     }
 
@@ -42,9 +42,9 @@ class StatisticsCollector
      */
     public function addUrl(string $url): StatisticsCollector{
         
-        if( !ArrayService::inArray($url,$this->uniqueUrls) ){
-            $this->uniqueUrls[] = $url;
-            $this->statistic['urls'] = count($this->uniqueUrls);
+        if( !ArrayService::inArray($url,$this->_uniqueUrls) ){
+            $this->_uniqueUrls[] = $url;
+            $this->_statistic['urls'] = count($this->_uniqueUrls);
         }
 
         return $this;
@@ -55,7 +55,7 @@ class StatisticsCollector
      * @param int $traffic  Количество переданных бит трафика
      */
     public function addTraffic(int $traffic): StatisticsCollector{
-        $this->statistic['traffic'] += $traffic;
+        $this->_statistic['traffic'] += $traffic;
 
         return $this;
     }
@@ -68,8 +68,8 @@ class StatisticsCollector
         
         $botName = BotService::botName($agent);
 
-        if( $botName !== null && isset($this->statistic['crawlers'][$botName])) {
-            $this->statistic['crawlers'][$botName]++;
+        if( $botName !== null && isset($this->_statistic['crawlers'][$botName])) {
+            $this->_statistic['crawlers'][$botName]++;
         }
 
         return $this;
@@ -81,10 +81,10 @@ class StatisticsCollector
      */
     public function addStatusCode(string $statusCode): StatisticsCollector{
         if( $statusCode !== ''){
-            if( isset($this->statistic['statusCodes'][$statusCode]) ){
-                $this->statistic['statusCodes'][$statusCode]++;
+            if( isset($this->_statistic['statusCodes'][$statusCode]) ){
+                $this->_statistic['statusCodes'][$statusCode]++;
             }else{
-                $this->statistic['statusCodes'][$statusCode] = 1;
+                $this->_statistic['statusCodes'][$statusCode] = 1;
             }
         }
 
@@ -96,6 +96,6 @@ class StatisticsCollector
      * @return array накопленная статистика
      */
     public function statistics(): array{
-        return $this->statistic;
+        return $this->_statistic;
     }
 }

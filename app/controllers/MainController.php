@@ -11,18 +11,18 @@ class MainController extends Controller
     /**
      * @var AccessLogFile Объект, содержащий свойства и методы по работе с файлом access.log
      */
-    private AccessLogFile $accessLogFile;
+    private AccessLogFile $_accessLogFile;
     /**
      * @var StatisticsCollector Сборщик статистики
      */
-    private StatisticsCollector $statisticsCollector;
+    private StatisticsCollector $_statisticsCollector;
 
     public function __construct()
     {
         parent::__construct();
 
-        $this->accessLogFile = new AccessLogFile();
-        $this->statisticsCollector = new StatisticsCollector();
+        $this->_accessLogFile = new AccessLogFile();
+        $this->_statisticsCollector = new StatisticsCollector();
     }
 
     public  function index(){
@@ -30,38 +30,38 @@ class MainController extends Controller
         if( array_key_exists('argv',$_SERVER) && array_key_exists(1,$_SERVER['argv'])){
             $accessLogFilePath = $_SERVER['argv'][1];
         }else{
-            return $this->response->json(['Error' => 'Invalid file path']);
+            return $this->_response->json(['Error' => 'Invalid file path']);
         }   
 
 
-        if($this->accessLogFile->isFileExists($accessLogFilePath)){
-            $this->accessLogFile->openFile($accessLogFilePath);
+        if($this->_accessLogFile->isFileExists($accessLogFilePath)){
+            $this->_accessLogFile->openFile($accessLogFilePath);
         }else{
-            return $this->response->json(['Error' => 'File not found']);
+            return $this->_response->json(['Error' => 'File not found']);
         }
 
-        if(!$this->accessLogFile->isFileOpen()){
-            return $this->response->json(['Error' => 'File did not open']);
+        if(!$this->_accessLogFile->isFileOpen()){
+            return $this->_response->json(['Error' => 'File did not open']);
         }
 
-        while ( $this->accessLogFile->canBeRead() ) {
-        	$currentLogEntry = $this->accessLogFile->readNextLine()->logLineToArray();
+        while ( $this->_accessLogFile->canBeRead() ) {
+        	$currentLogEntry = $this->_accessLogFile->readNextLine()->logLineToArray();
            
             if(count($currentLogEntry) > 0){
-                $this->statisticsCollector
+                $this->_statisticsCollector
                     ->addView()
                     ->addUrl($currentLogEntry['path'])
                     ->addCrawler($currentLogEntry['agent'])
                     ->addStatusCode($currentLogEntry['status']);
 
                 if( (int)$currentLogEntry['status'] < 300 || (int)$currentLogEntry['status'] >= 400 ){
-                    $this->statisticsCollector->addTraffic($currentLogEntry['bytes']);
+                    $this->_statisticsCollector->addTraffic($currentLogEntry['bytes']);
                 }
             }
         }
         
-        $statistics = $this->statisticsCollector->statistics();
+        $statistics = $this->_statisticsCollector->statistics();
 
-        return $this->response->json($statistics);
+        return $this->_response->json($statistics);
     }
 }

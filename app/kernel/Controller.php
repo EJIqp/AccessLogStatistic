@@ -4,12 +4,11 @@ namespace App\Kernel;
 
 class Controller 
 {
-    protected $model;
-    protected $response;
+    protected Response $_response;
     
     public function __construct()
     {
-        $this->response = new Response();
+        $this->_response = new Response();
     }
     
     public function index(){}
