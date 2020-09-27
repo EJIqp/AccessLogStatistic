@@ -3,30 +3,24 @@
 namespace App\Models;
 
 use App\Kernel\Model;
-use App\Helpers\RegExpService;
+use App\Helpers;
 
 class AccessLogFile extends Model
 {
-
-    private $logFile = null;
-    private $currentLogLine = '';
-    
     /**
-     * Инициализации модели.
-     * @param App\Helpers\File $fileService Объект для работы с файлами
+     * @var resource|null Указатель на текущий файл
      */
-    public function __construct(\App\Helpers\FileService $fileService){
-        $this->logFile = $fileService;
-    }
-
+    private $logFileDescriptor = null;
+    private ?string $currentLogLine = '';
+    
     /**
      * Открытваем файл $fileName
      * @param  string $fileName Полное имя файла
      * @return bool             Результат откртыия true - успешно, false - ошибка
      */
-    public function fileExists(string $fileName): bool{
-        $fileExists = $this->logFile->fileExists($fileName);
-        return (bool)$fileExists;
+    public function isFileExists(string $fileName): bool{
+        $fileIsExists = Helpers\FileService::isFileExists($fileName);
+        return (bool)$fileIsExists;
     }
 
     /**
@@ -35,7 +29,7 @@ class AccessLogFile extends Model
      * @return void
      */
     public function openFile(string $fileName): void{
-        $this->logFile->openFile($fileName, "r");
+        $this->logFileDescriptor = Helpers\FileService::openFile($fileName, "r");
     }
 
     /**
@@ -43,7 +37,7 @@ class AccessLogFile extends Model
      * @return bool Если true - открыт, иначе нет.
      */
     public function isFileOpen(): bool{
-        return (bool)$this->logFile->isFileOpen();
+        return $this->logFileDescriptor === null ? false : true;
     }
 
     /**
@@ -51,7 +45,7 @@ class AccessLogFile extends Model
      * @return boolean  Результат проверки true - доступен, false - достигнут конец
      */
     public function canBeRead(): bool{
-        return $this->logFile->isReachedEOF() ? false : true;
+        return Helpers\FileService::isReachedEOF($this->logFileDescriptor) ? false : true;
     }
 
     /**
@@ -59,7 +53,7 @@ class AccessLogFile extends Model
      * @return AccessLogFile     Тукущее состояние объекта AccessLogFile
      */
     public function readNextLine(): AccessLogFile{
-        $this->currentLogLine = $this->logFile->readLine();
+        $this->currentLogLine = Helpers\FileService::readLine($this->logFileDescriptor);
         return $this;
     }
 
@@ -67,7 +61,7 @@ class AccessLogFile extends Model
      * Getter текущей записи лога в текстовом формате
      * @return string     Тукущая запись файла логов
      */
-    public function logInText(): ?string{
+    public function logLineToText(): ?string{
         return $this->currentLogLine !== '' ? $this->currentLogLine : null;
     }
 
@@ -75,14 +69,14 @@ class AccessLogFile extends Model
      * Getter текущей записи лога в виде ассоциативного массива
      * @return array     Тукущая запись файла логов
      */
-    public function logInArray(): array{
+    public function logLineToArray(): array{
         $result = [];
 
         if($this->currentLogLine !== ''){
 
             $pattern = '/(\S+) (\S+) (\S+) \[(.+?)\] \"(\S+) (.*?) (\S+)\" (\S+) (\S+) \"(.*?)\" \"(.*?)\"/';
             
-            $logLineParameters = RegExpService::splitByPattern($pattern, $this->currentLogLine);
+            $logLineParameters = Helpers\RegExpService::splitByPattern($pattern, $this->currentLogLine);
 
             if( count($logLineParameters) === 12 ){
                 $result['ip']       = $logLineParameters[1];
@@ -99,7 +93,6 @@ class AccessLogFile extends Model
             }
         }
 
-
         return $result;
     }
 
@@ -109,6 +102,6 @@ class AccessLogFile extends Model
      * Закрывает соединение с файлом
      */
     public function __destruct(){
-        $this->logFile = $this->logFile->closeFile();
+        Helpers\FileService::closeFile($this->logFileDescriptor);
     }
 }

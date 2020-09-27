@@ -8,8 +8,8 @@ class BotService
      * Список ключей ботов
      * @var array
      */
-    private static $bots = [
-        'Google' => [ 
+    private static array $bots = [
+        'Google' => [
             'Googlebot', 'Googlebot-Image', 'Mediapartners-Google', 'AdsBot-Google', 'APIs-Google',
             'AdsBot-Google-Mobile', 'AdsBot-Google-Mobile', 'Googlebot-News', 'Googlebot-Video',
             'AdsBot-Google-Mobile-Apps',

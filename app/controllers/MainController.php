@@ -3,7 +3,7 @@
 namespace App\Controllers;
 
 use App\Kernel\Controller;
-use App\Helpers;
+use App\Helpers\StatisticsCollector;
 use App\Models\AccessLogFile;
 
 class MainController extends Controller
@@ -11,20 +11,18 @@ class MainController extends Controller
     /**
      * @var AccessLogFile Объект, содержащий свойства и методы по работе с файлом access.log
      */
-    private $accessLogFile;
+    private AccessLogFile $accessLogFile;
     /**
-     * @var Helpers\StatisticsCollector Сборщик статистики
+     * @var StatisticsCollector Сборщик статистики
      */
-    private $statisticsCollector;
+    private StatisticsCollector $statisticsCollector;
 
     public function __construct()
     {
         parent::__construct();
 
-        $fileService = new Helpers\FileService();
-        $this->accessLogFile = new AccessLogFile($fileService);
-
-        $this->statisticsCollector = new Helpers\StatisticsCollector();
+        $this->accessLogFile = new AccessLogFile();
+        $this->statisticsCollector = new StatisticsCollector();
     }
 
     public  function index(){
@@ -36,7 +34,7 @@ class MainController extends Controller
         }   
 
 
-        if($this->accessLogFile->fileExists($accessLogFilePath)){
+        if($this->accessLogFile->isFileExists($accessLogFilePath)){
             $this->accessLogFile->openFile($accessLogFilePath);
         }else{
             return $this->response->json(['Error' => 'File not found']);
@@ -47,7 +45,7 @@ class MainController extends Controller
         }
 
         while ( $this->accessLogFile->canBeRead() ) {
-        	$currentLogEntry = $this->accessLogFile->readNextLine()->logInArray();
+        	$currentLogEntry = $this->accessLogFile->readNextLine()->logLineToArray();
            
             if(count($currentLogEntry) > 0){
                 $this->statisticsCollector

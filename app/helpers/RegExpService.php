@@ -12,8 +12,8 @@ class RegExpService
      */
     public static function splitByPattern(string $pattern , string $subject): array{
 
-        $patternIsMatchesSubject = (bool)preg_match ($pattern, $subject, $matches);
+        $patternIsMatchesSubject = preg_match ($pattern, $subject, $matches);
 
-        return $patternIsMatchesSubject ? $matches : [];
+        return $patternIsMatchesSubject === 1 ? $matches : [];
     }
 }
